@@ -1,0 +1,76 @@
+# Evidence bucket
+#
+# An S3 bucket for storing audit evidence, hardened to a federal
+# baseline. Each resource notes the NIST SP 800-53 Rev. 5 controls
+# it supports.
+
+variable "evidence_bucket_name" {
+  description = "Globally unique name for the evidence bucket."
+  type        = string
+}
+
+resource "aws_s3_bucket" "evidence" {
+  bucket = var.evidence_bucket_name
+}
+
+# AC-3, SC-7: block every form of public access.
+resource "aws_s3_bucket_public_access_block" "evidence" {
+  bucket                  = aws_s3_bucket.evidence.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+# AC-3, AC-6: disable ACLs so only IAM policies control access.
+resource "aws_s3_bucket_ownership_controls" "evidence" {
+  bucket = aws_s3_bucket.evidence.id
+
+  rule {
+    object_ownership = "BucketOwnerEnforced"
+  }
+}
+
+# SC-28: encrypt everything at rest with AWS KMS.
+resource "aws_s3_bucket_server_side_encryption_configuration" "evidence" {
+  bucket = aws_s3_bucket.evidence.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "aws:kms"
+    }
+    bucket_key_enabled = true
+  }
+}
+
+# AU-9, CP-9: keep prior versions so evidence can't be silently
+# overwritten or deleted.
+resource "aws_s3_bucket_versioning" "evidence" {
+  bucket = aws_s3_bucket.evidence.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+# SC-8: reject any request that doesn't use TLS.
+resource "aws_s3_bucket_policy" "evidence" {
+  bucket = aws_s3_bucket.evidence.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Sid       = "DenyInsecureTransport"
+      Effect    = "Deny"
+      Principal = "*"
+      Action    = "s3:*"
+      Resource = [
+        aws_s3_bucket.evidence.arn,
+        "${aws_s3_bucket.evidence.arn}/*",
+      ]
+      Condition = {
+        Bool = { "aws:SecureTransport" = "false" }
+      }
+    }]
+  })
+}
