@@ -76,3 +76,26 @@ resource "aws_s3_bucket_policy" "evidence" {
     }]
   })
 }
+
+
+# SI-12: expire replaced or deleted versions after three years, and
+# clean up incomplete uploads. Current objects are never expired.
+resource "aws_s3_bucket_lifecycle_configuration" "evidence" {
+  bucket     = aws_s3_bucket.evidence.id
+  depends_on = [aws_s3_bucket_versioning.evidence]
+
+  rule {
+    id     = "expire-noncurrent-versions-after-three-years"
+    status = "Enabled"
+
+    filter {}
+
+    noncurrent_version_expiration {
+      noncurrent_days = 1095
+    }
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
+  }
+}
