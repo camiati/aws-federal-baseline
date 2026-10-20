@@ -10,6 +10,8 @@ variable "evidence_bucket_name" {
 }
 
 resource "aws_s3_bucket" "evidence" {
+  #checkov:skip=CKV_AWS_144:Versioning protects against deletion; second-Region replication deferred to contingency planning. See RISK_ACCEPTANCES.md.
+  #checkov:skip=CKV2_AWS_62:No event consumer exists yet; revisit when a monitoring pipeline is built. See RISK_ACCEPTANCES.md.
   bucket = var.evidence_bucket_name
 }
 
