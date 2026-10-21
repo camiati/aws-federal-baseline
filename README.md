@@ -11,8 +11,10 @@ Companion to [The Grid](https://github.com/camiati/The-Grid), a reference guide 
 | `s3_evidence.tf` | Hardened S3 bucket for audit evidence | AC&#8209;3, AC&#8209;6, AU&#8209;2, AU&#8209;9, AU&#8209;12, CP&#8209;9, SC&#8209;7, SC&#8209;8, SC&#8209;28, SI&#8209;12 |
 | `s3_access_logs.tf` | Bucket receiving the evidence bucket's access logs | AC&#8209;3, AC&#8209;6, AU&#8209;9, AU&#8209;11, SC&#8209;7, SC&#8209;8, SC&#8209;28 |
 | `kms.tf` | Customer-managed key encrypting audit logs, with automatic rotation | SC&#8209;12, SC&#8209;13 |
+| `cloudtrail.tf` | Multi-Region trail recording every management API call, with log file validation | AU&#8209;2, AU&#8209;3, AU&#8209;9, AU&#8209;12, SC&#8209;28 |
+| `guardduty.tf` | Threat detection, including S3 Protection | SI&#8209;4, IR&#8209;4 |
 | `providers.tf` | Terraform and AWS provider versions | |
-| [`RISK_ACCEPTANCES.md`](./RISK_ACCEPTANCES.md) | Checks deliberately not met, with justifications and review dates | |
+| [`RISK_ACCEPTANCES.md`](./RISK_ACCEPTANCES.md) | Accepted risks and planned remediations, with justifications and dates | |
 
 Each resource is annotated in the code with the controls it supports.
 
@@ -26,7 +28,7 @@ Every pull request runs three checks. None of them touch AWS, and no credentials
 | Validate | `terraform validate` | Syntax errors and broken references |
 | Security scan | Checkov | Security misconfigurations |
 
-Current result: 32 passed, 0 failed, 6 skipped. Every skip has a documented justification in the [risk register](./RISK_ACCEPTANCES.md).
+Current result: 41 passed, 0 failed, 9 skipped. Every skip is either a documented risk acceptance or a planned remediation, tracked in the [risk register](./RISK_ACCEPTANCES.md).
 
 ## Repository controls
 
@@ -42,11 +44,14 @@ Current result: 32 passed, 0 failed, 6 skipped. Every skip has a documented just
 
 - **Checkov's version is updated by hand.** It's installed inside a workflow command, which Dependabot can't see.
 - **Validated, not deployed.** CI checks the code without an AWS account.
-- **One account, one Region.** A multi-account baseline is on the roadmap.
+- **One account, one Region.** CloudTrail covers all Regions, but GuardDuty runs in one. Organization-wide coverage is a planned remediation.
+- **No real-time alerting yet.** CloudTrail isn't yet connected to CloudWatch alarms. Also a planned remediation.
 
 ## Roadmap
 
-1. CloudTrail, GuardDuty, AWS Config, and Security Hub CSPM with the NIST SP 800-53 standard
-2. GitHub Actions authenticating to AWS through OIDC, with no stored keys
-3. A signed container pipeline with an SBOM and build provenance
-4. A machine-readable SSP in OSCAL, generated from the control annotations
+1. AWS Config and Security Hub CSPM with the NIST SP 800-53 standard
+2. CloudWatch alerting on CloudTrail events
+3. A multi-account baseline with AWS Organizations
+4. GitHub Actions authenticating to AWS through OIDC, with no stored keys
+5. A signed container pipeline with an SBOM and build provenance
+6. A machine-readable SSP in OSCAL, generated from the control annotations
