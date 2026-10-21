@@ -9,7 +9,7 @@
 # SC-28: logs encrypted with the customer-managed audit log key.
 resource "aws_cloudtrail" "baseline" {
   #checkov:skip=CKV_AWS_252:Per-file delivery notifications aren't actionable; alerting comes from GuardDuty and Security Hub. See RISK_ACCEPTANCES.md.
-  #checkov:skip=CKV2_AWS_10:Planned remediation, not an acceptance: CloudWatch Logs integration in the monitoring pull request, target Q1 2027. See RISK_ACCEPTANCES.md.
+  #checkov:skip=CKV2_AWS_10:Planned remediation, not an acceptance: CloudWatch Logs integration in the monitoring pull request, target QX YYYY. See RISK_ACCEPTANCES.md.
   name                          = local.trail_name
   s3_bucket_name                = aws_s3_bucket.evidence.id
   s3_key_prefix                 = "cloudtrail"
