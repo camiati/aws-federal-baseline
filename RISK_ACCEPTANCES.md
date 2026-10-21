@@ -12,6 +12,15 @@ Each acceptance is enforced in code with a `#checkov:skip` comment inside the af
 | CKV2_AWS_62: event notifications | `aws_s3_bucket.evidence`, `aws_s3_bucket.access_logs` | Notifications only matter if something consumes them, and no monitoring pipeline exists yet. | AU&#8209;6, SI&#8209;4 | Oct 2026 | Apr 2027 |
 | CKV_AWS_18: access logging | `aws_s3_bucket.access_logs` | This bucket receives the evidence bucket's access logs. AWS recommends that log destination buckets not log themselves, which would create a loop. Object-level access to the logs can be recorded with CloudTrail data events once CloudTrail is added. | AU&#8209;2, AU&#8209;12 | Oct 2026 | Apr 2027 |
 | CKV_AWS_145: KMS encryption | `aws_s3_bucket.access_logs` | AWS does not support SSE-KMS default encryption on server access log destination buckets ([AWS documentation](https://docs.aws.amazon.com/AmazonS3/latest/userguide/troubleshooting-server-access-logging.html)). The bucket uses SSE-S3 (AES-256) instead, so data is still encrypted at rest. | SC&#8209;28 | Oct 2026 | Apr 2027 |
+| CKV_AWS_252: CloudTrail SNS topic | `aws_cloudtrail.baseline` | SNS would notify on every log file delivery, many times an hour, and none of those notifications are actionable. Alerting comes from GuardDuty and Security Hub. | AU&#8209;6, SI&#8209;4 | Oct 2026 | Apr 2027 |
+
+## Planned remediations
+
+Gaps that will be fixed, not accepted. These work like POA&M items: each has a target date, and the skip comment is removed when the fix merges.
+
+| Check | Resource | Gap | Planned fix | Controls | Target |
+|---|---|---|---|---|---|
+| CKV2_AWS_10: CloudWatch Logs integration | `aws_cloudtrail.baseline` | No real-time alerting on CloudTrail events, such as root logins or IAM policy changes | Send CloudTrail to an encrypted CloudWatch Logs group with metric filters and alarms, in the monitoring pull request | AU&#8209;6, SI&#8209;4 | QX YYYY |
 
 ## Process
 
