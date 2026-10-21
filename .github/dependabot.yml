@@ -1,0 +1,31 @@
+# Dependabot configuration for aws-federal-baseline
+#
+# Watches two kinds of dependencies and opens pull requests for updates:
+#   - GitHub Actions used in .github/workflows/ (pinned to commit SHAs)
+#   - The Terraform AWS provider version in providers.tf
+#
+# Every update goes through branch protection and the Terraform checks.
+
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    groups:
+      actions:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "deps"
+    cooldown:
+      default-days: 7 # wait a week after a release before proposing it
+
+  - package-ecosystem: "terraform"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    commit-message:
+      prefix: "deps"
+    cooldown:
+      default-days: 7
