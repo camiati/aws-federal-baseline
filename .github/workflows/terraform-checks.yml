@@ -38,4 +38,4 @@ jobs:
         run: terraform validate
 
       - name: Checkov security scan
-        run: pipx run --spec checkov==3.3.16 checkov --directory . --framework terraform --compact
+        run: pipx run --spec checkov==3.3.30 checkov --directory . --framework terraform --compact
