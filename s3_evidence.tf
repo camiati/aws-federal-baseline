@@ -56,27 +56,52 @@ resource "aws_s3_bucket_versioning" "evidence" {
 }
 
 # SC-8: reject any request that doesn't use TLS.
+# AU-9: let CloudTrail write logs, and only from this account's trail.
 resource "aws_s3_bucket_policy" "evidence" {
   bucket = aws_s3_bucket.evidence.id
 
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
-      Sid       = "DenyInsecureTransport"
-      Effect    = "Deny"
-      Principal = "*"
-      Action    = "s3:*"
-      Resource = [
-        aws_s3_bucket.evidence.arn,
-        "${aws_s3_bucket.evidence.arn}/*",
-      ]
-      Condition = {
-        Bool = { "aws:SecureTransport" = "false" }
-      }
-    }]
+    Statement = [
+      {
+        Sid       = "DenyInsecureTransport"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource = [
+          aws_s3_bucket.evidence.arn,
+          "${aws_s3_bucket.evidence.arn}/*",
+        ]
+        Condition = {
+          Bool = { "aws:SecureTransport" = "false" }
+        }
+      },
+      {
+        Sid       = "AllowCloudTrailAclCheck"
+        Effect    = "Allow"
+        Principal = { Service = "cloudtrail.amazonaws.com" }
+        Action    = "s3:GetBucketAcl"
+        Resource  = aws_s3_bucket.evidence.arn
+        Condition = {
+          StringEquals = { "aws:SourceArn" = local.trail_arn }
+        }
+      },
+      {
+        Sid       = "AllowCloudTrailWrite"
+        Effect    = "Allow"
+        Principal = { Service = "cloudtrail.amazonaws.com" }
+        Action    = "s3:PutObject"
+        Resource  = "${aws_s3_bucket.evidence.arn}/cloudtrail/AWSLogs/${local.account_id}/*"
+        Condition = {
+          StringEquals = {
+            "s3:x-amz-acl"  = "bucket-owner-full-control"
+            "aws:SourceArn" = local.trail_arn
+          }
+        }
+      },
+    ]
   })
 }
-
 
 # SI-12: expire replaced or deleted versions after three years, and
 # clean up incomplete uploads. Current objects are never expired.
