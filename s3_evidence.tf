@@ -99,3 +99,11 @@ resource "aws_s3_bucket_lifecycle_configuration" "evidence" {
     }
   }
 }
+
+# AU-2, AU-12: record every request to the evidence bucket in the
+# access log bucket.
+resource "aws_s3_bucket_logging" "evidence" {
+  bucket        = aws_s3_bucket.evidence.id
+  target_bucket = aws_s3_bucket.access_logs.id
+  target_prefix = "evidence/"
+}
