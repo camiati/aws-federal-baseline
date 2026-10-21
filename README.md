@@ -10,6 +10,7 @@ Companion to [The Grid](https://github.com/camiati/The-Grid), a reference guide 
 |---|---|---|
 | `s3_evidence.tf` | Hardened S3 bucket for audit evidence | AC&#8209;3, AC&#8209;6, AU&#8209;2, AU&#8209;9, AU&#8209;12, CP&#8209;9, SC&#8209;7, SC&#8209;8, SC&#8209;28, SI&#8209;12 |
 | `s3_access_logs.tf` | Bucket receiving the evidence bucket's access logs | AC&#8209;3, AC&#8209;6, AU&#8209;9, AU&#8209;11, SC&#8209;7, SC&#8209;8, SC&#8209;28 |
+| `kms.tf` | Customer-managed key encrypting audit logs, with automatic rotation | SC&#8209;12, SC&#8209;13 |
 | `providers.tf` | Terraform and AWS provider versions | |
 | [`RISK_ACCEPTANCES.md`](./RISK_ACCEPTANCES.md) | Checks deliberately not met, with justifications and review dates | |
 
