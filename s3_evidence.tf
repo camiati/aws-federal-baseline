@@ -10,6 +10,8 @@ variable "evidence_bucket_name" {
 }
 
 resource "aws_s3_bucket" "evidence" {
+  #checkov:skip=CKV_AWS_144:Versioning protects against deletion; second-Region replication deferred to contingency planning. See RISK_ACCEPTANCES.md.
+  #checkov:skip=CKV2_AWS_62:No event consumer exists yet; revisit when a monitoring pipeline is built. See RISK_ACCEPTANCES.md.
   bucket = var.evidence_bucket_name
 }
 
@@ -73,4 +75,35 @@ resource "aws_s3_bucket_policy" "evidence" {
       }
     }]
   })
+}
+
+
+# SI-12: expire replaced or deleted versions after three years, and
+# clean up incomplete uploads. Current objects are never expired.
+resource "aws_s3_bucket_lifecycle_configuration" "evidence" {
+  bucket     = aws_s3_bucket.evidence.id
+  depends_on = [aws_s3_bucket_versioning.evidence]
+
+  rule {
+    id     = "expire-noncurrent-versions-after-three-years"
+    status = "Enabled"
+
+    filter {}
+
+    noncurrent_version_expiration {
+      noncurrent_days = 1095
+    }
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
+  }
+}
+
+# AU-2, AU-12: record every request to the evidence bucket in the
+# access log bucket.
+resource "aws_s3_bucket_logging" "evidence" {
+  bucket        = aws_s3_bucket.evidence.id
+  target_bucket = aws_s3_bucket.access_logs.id
+  target_prefix = "evidence/"
 }
