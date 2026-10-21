@@ -7,6 +7,7 @@
 # SI-4, IR-4: enable threat detection, publishing findings every
 # 15 minutes.
 resource "aws_guardduty_detector" "baseline" {
+  #checkov:skip=CKV2_AWS_3:Planned remediation, not an acceptance: organization-wide, all-Region GuardDuty in the multi-account baseline, target QX YYYY. See RISK_ACCEPTANCES.md.
   enable                       = true
   finding_publishing_frequency = "FIFTEEN_MINUTES"
 }
