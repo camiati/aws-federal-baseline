@@ -15,6 +15,8 @@ Companion to [The Grid](https://github.com/camiati/The-Grid), a reference guide 
 | `guardduty.tf` | Threat detection, including S3 Protection | SI&#8209;4, IR&#8209;4 |
 | `providers.tf` | Terraform and AWS provider versions | |
 | [`RISK_ACCEPTANCES.md`](./RISK_ACCEPTANCES.md) | Accepted risks and planned remediations, with justifications and dates | |
+| [`CLAUDE.md`](./CLAUDE.md) | Instructions for Claude Code: conventions, workflow, and hard rules | |
+| [`.claude/settings.json`](./.claude/settings.json) | Enforced permission rules for Claude Code | |
 
 Each resource is annotated in the code with the controls it supports.
 
@@ -39,6 +41,7 @@ Current result: 41 passed, 0 failed, 9 skipped. Every skip is either a documente
 | Patch management | Dependabot updates for actions and the AWS provider | SI&#8209;2 |
 | Risk acceptance | Checkov skip comments, a risk register, and pull request approval | RA&#8209;7 |
 | Secrets | Secret scanning and push protection | IA&#8209;5(7) |
+| AI tooling guardrails | Claude Code permission rules deny Terraform commands that contact AWS, all `aws` CLI commands, force-pushes, and reads of `~/.aws/`; commits and pushes require approval. Tested: denied commands are blocked before they run. | AC&#8209;6, CM&#8209;7 |
 
 ## Known gaps
 
