@@ -13,6 +13,7 @@ Companion to [The Grid](https://github.com/camiati/The-Grid), a reference guide 
 | `kms.tf` | Customer-managed key encrypting audit logs, with automatic rotation | SC&#8209;12, SC&#8209;13 |
 | `cloudtrail.tf` | Multi-Region trail recording every management API call, with log file validation | AU&#8209;2, AU&#8209;3, AU&#8209;9, AU&#8209;12, SC&#8209;28 |
 | `guardduty.tf` | Threat detection, including S3 Protection | SI&#8209;4, IR&#8209;4 |
+| `config.tf` | Records every resource's configuration and change history | CM&#8209;2, CM&#8209;3, CM&#8209;8, CA&#8209;7 |
 | `providers.tf` | Terraform and AWS provider versions | |
 | [`RISK_ACCEPTANCES.md`](./RISK_ACCEPTANCES.md) | Accepted risks and planned remediations, with justifications and dates | |
 | [`CLAUDE.md`](./CLAUDE.md) | Instructions for Claude Code: conventions, workflow, and hard rules | |
@@ -30,7 +31,7 @@ Every pull request runs three checks. None of them touch AWS, and no credentials
 | Validate | `terraform validate` | Syntax errors and broken references |
 | Security scan | Checkov | Security misconfigurations |
 
-Current result: 41 passed, 0 failed, 9 skipped. Every skip is either a documented risk acceptance or a planned remediation, tracked in the [risk register](./RISK_ACCEPTANCES.md).
+Current result: 43 passed, 0 failed, 9 skipped. Every skip is either a documented risk acceptance or a planned remediation, tracked in the [risk register](./RISK_ACCEPTANCES.md).
 
 ## Repository controls
 
@@ -52,7 +53,7 @@ Current result: 41 passed, 0 failed, 9 skipped. Every skip is either a documente
 
 ## Roadmap
 
-1. AWS Config and Security Hub CSPM with the NIST SP 800-53 standard
+1. Security Hub CSPM with the NIST SP 800-53 standard, building on AWS Config
 2. CloudWatch alerting on CloudTrail events
 3. A multi-account baseline with AWS Organizations
 4. GitHub Actions authenticating to AWS through OIDC, with no stored keys
