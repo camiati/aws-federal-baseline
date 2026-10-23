@@ -1,6 +1,6 @@
 # Customer-managed KMS key for audit logs
 #
-# Encrypts CloudTrail logs with a key this account controls, so reading
+# Encrypts CloudTrail logs and AWS Config deliveries with a key this account controls, so reading
 # the logs requires both S3 and KMS permissions. Rotated automatically.
 #
 # ARNs are built with the current partition, so the same code works in
@@ -17,7 +17,7 @@ locals {
 
 # SC-12, SC-13: a customer-managed key with automatic yearly rotation.
 resource "aws_kms_key" "audit_logs" {
-  description             = "Encrypts CloudTrail audit logs"
+  description             = "ncrypts CloudTrail and AWS Config audit data"
   enable_key_rotation     = true
   deletion_window_in_days = 30
 
@@ -40,6 +40,16 @@ resource "aws_kms_key" "audit_logs" {
         Condition = {
           StringEquals = { "aws:SourceArn" = local.trail_arn }
           StringLike   = { "kms:EncryptionContext:aws:cloudtrail:arn" = "arn:${local.partition}:cloudtrail:*:${local.account_id}:trail/*" }
+        }
+      },
+            {
+        Sid       = "AllowConfigEncryptDelivery"
+        Effect    = "Allow"
+        Principal = { Service = "config.amazonaws.com" }
+        Action    = ["kms:Decrypt", "kms:GenerateDataKey"]
+        Resource  = "*"
+        Condition = {
+          StringEquals = { "aws:SourceAccount" = local.account_id }
         }
       },
       {

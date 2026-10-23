@@ -56,7 +56,7 @@ resource "aws_s3_bucket_versioning" "evidence" {
 }
 
 # SC-8: reject any request that doesn't use TLS.
-# AU-9: let CloudTrail write logs, and only from this account's trail.
+# AU-9: let CloudTrail and AWS Config write, and only from this account.
 resource "aws_s3_bucket_policy" "evidence" {
   bucket = aws_s3_bucket.evidence.id
 
@@ -84,6 +84,29 @@ resource "aws_s3_bucket_policy" "evidence" {
         Resource  = aws_s3_bucket.evidence.arn
         Condition = {
           StringEquals = { "aws:SourceArn" = local.trail_arn }
+        }
+      },
+      {
+        Sid       = "AllowConfigBucketCheck"
+        Effect    = "Allow"
+        Principal = { Service = "config.amazonaws.com" }
+        Action    = ["s3:GetBucketAcl", "s3:ListBucket"]
+        Resource  = aws_s3_bucket.evidence.arn
+        Condition = {
+          StringEquals = { "aws:SourceAccount" = local.account_id }
+        }
+      },
+      {
+        Sid       = "AllowConfigWrite"
+        Effect    = "Allow"
+        Principal = { Service = "config.amazonaws.com" }
+        Action    = "s3:PutObject"
+        Resource  = "${aws_s3_bucket.evidence.arn}/config/AWSLogs/${local.account_id}/Config/*"
+        Condition = {
+          StringEquals = {
+            "s3:x-amz-acl"      = "bucket-owner-full-control"
+            "aws:SourceAccount" = local.account_id
+          }
         }
       },
       {
